@@ -1,5 +1,5 @@
 /*******************************************************************************************************/
-/* Author            : Ahmed khaled Hammad && Mohamed Ahmed                                            */
+/* Author            : Ahmed khaled Hammad && Mohamed Ahmed Abdelhamid                                 */
 /* Version           : V0.0.0                                                                          */
 /* Data              : 24 May 2022                                                                     */
 /* Description       : main.c --> IMT_SMART_HOME                                                       */
