@@ -50,6 +50,7 @@
 #include"../HAL/HLED/HLED_Interface.h"                      //For LED
 #include"../HAL/HBUZZER/HBUZZER_Interface.h"                //For Buzzer
 #include"../HAL/HDC_MOTOR/HDC_MOTOR_Interface.h"            //For DC Motor
+#include"../HAL/HSERVO_MOTOR/HSERVO_Interface.h"            //For Servo Motor
 
 /*#####################################################################################################*/
 /*#####################################################################################################*/
@@ -76,12 +77,19 @@
 #define NO_SPEED                 0
 
 #define ONE_LED                  1
+#define TWO_LED                  2
+#define THREE_LED                3
+#define FOUR_LED                 4
+#define FIVE_LED                 5
+
 
 #define MAX_COUNT                500
 
-
 #define ZERO                     0
 
+#define DOOR_OPEN                180
+
+#define DOOR_CLOSED              0
 /*#####################################################################################################*/
 /*#####################################################################################################*/
 
@@ -89,11 +97,35 @@
 /*                                      Global Variables(Flag)                                         */
 /*******************************************************************************************************/
 
+/*#####################################################################################################*/
+/*#####################################################################################################*/
+
+
+/*******************************************************************************************************/
+/*                                         1- LEDs Hardware Connections                                */
+/*******************************************************************************************************/
+
+
+LED_t           LOC_SturctLED_1     ={HLED_PORTA,PIN0}                     ;
+LED_t           LOC_SturctLED_2     ={HLED_PORTA,PIN1}                     ;
+LED_t           LOC_SturctLED_3     ={HLED_PORTA,PIN3}                     ;
+LED_t           LOC_SturctLED_4     ={HLED_PORTA,PIN4}                     ;
+LED_t           LOC_SturctLED_5     ={HLED_PORTA,PIN6}                     ;
+
+/*******************************************************************************************************/
 
 static u8 Global_u8MotorSpeed = NO_SPEED    ;
+
+/*******************************************************************************************************/
+
 static u8 Global_u8LedsNumber = ONE_LED     ;
 
+/*******************************************************************************************************/
+
 static u8 Global_u8BuzzerFlag = DEACTIVE    ;
+
+/*******************************************************************************************************/
+
 static u8 Global_u8ServoFlag  = DEACTIVE    ;
 
 /*#####################################################################################################*/
@@ -131,26 +163,16 @@ int main(void)
 	/*#####################################################################################################*/
 	/*#####################################################################################################*/
 
-	/*******************************************************************************************************/
-	/*                                         1- LEDs Hardware Connections                                */
-	/*******************************************************************************************************/
-
-
-	LED_t           LOC_SturctLED_1     ={HLED_PORTA,PIN0}                     ;
-	LED_t           LOC_SturctLED_2     ={HLED_PORTA,PIN1}                     ;
-	LED_t           LOC_SturctLED_3     ={HLED_PORTA,PIN3}                     ;
-	LED_t           LOC_SturctLED_4     ={HLED_PORTA,PIN4}                     ;
-	LED_t           LOC_SturctLED_5     ={HLED_PORTA,PIN6}                     ;
 
 	/*******************************************************************************************************/
-	/*                                         2- Buzzer Hardware Connections                              */
+	/*                                         1- Buzzer Hardware Connections                              */
 	/*******************************************************************************************************/
 
 
 	Buzzer_t        LOC_SturctBuzzer_1  ={HBUZZER_PORTA,PIN7}                  ;
 
 	/*******************************************************************************************************/
-	/*                                         3- DC Motor Hardware Connections                            */
+	/*                                         2- DC Motor Hardware Connections                            */
 	/*-----------------------------------------------------------------------------------------------------*/
 	/* DC Motor is connected with special HW pin OC0 to control its speed by PWM generated on this pin     */
 	/*******************************************************************************************************/
@@ -158,18 +180,19 @@ int main(void)
 	DCMotor_t       LOC_StructMotor_1   ={HLED_PORTB,PIN3}                     ;     //Hardware Interface--> OC0
 
 	/*******************************************************************************************************/
-	/*                                         4- Counter Delay For Buzzer                                 */
+	/*                                         3- Counter Delay For Buzzer                                 */
 	/*******************************************************************************************************/
 
-	u16 LOC_u16Counter   = ZERO ;
+	u16 LOC_u16Counter   = ZERO                                                ;
+
+	/*******************************************************************************************************/
+	/*                                         4- Time out for Door open                                   */
+	/*******************************************************************************************************/
+
+	u16 LOC_u16DoorTimeOut = ZERO                                              ;
 
 	/*******************************************************************************************************/
 	/*                                         5- ///////////////////////////                              */
-	/*******************************************************************************************************/
-
-
-	/*******************************************************************************************************/
-	/*                                         6- ///////////////////////////                              */
 	/*******************************************************************************************************/
 
 
@@ -231,11 +254,12 @@ int main(void)
 
 	/*******************************************************************************************************/
 	/*                                       6- Initialize Servo Motor                                     */
+	/*-----------------------------------------------------------------------------------------------------*/
+	/*Note:                                                                                                */
+	/* Servo Pin interfaced with OC1A                                                                      */
 	/*******************************************************************************************************/
 
-	/*In progress*/
-
-
+	HSERVO_voidInit() ;
 
 	/*******************************************************************************************************/
 	/*                                       7-  ADC Initialization                                        */
@@ -300,10 +324,17 @@ int main(void)
 		if(Global_u8ServoFlag == ACTIVE)
 		{
 			//Servo_ON()
+			HSERVO_voidSetAngle(DOOR_OPEN);
 			Global_u8ServoFlag = DEACTIVE ;
 		}
 		else
 		{
+			LOC_u16DoorTimeOut++ ;
+			if(LOC_u16DoorTimeOut==MAX_COUNT)
+			{
+				HSERVO_voidSetAngle(DOOR_CLOSED);
+				LOC_u16DoorTimeOut = ZERO ;
+			}
 			/*Do Nothing*/
 		}
 		if(Global_u8BuzzerFlag == ACTIVE)
@@ -314,6 +345,7 @@ int main(void)
 			{
 				Global_u8BuzzerFlag = DEACTIVE ;
 				HBUZZER_voidBuzzerOff(&LOC_SturctBuzzer_1);
+				LOC_u16Counter = ZERO ;
 			}
 			else{/*Do Nothing*/}
 		}
@@ -420,6 +452,44 @@ void APP_voidFanControl(void)
 void APP_voidLightControl(void)
 {
 	/*Set Algorithm*/
+	switch(Global_u8LedsNumber)
+	{
+	case ONE_LED:
+		HLED_VidLed_On(&LOC_SturctLED_1);
+		HLED_VidLed_Off(&LOC_SturctLED_2);
+		HLED_VidLed_Off(&LOC_SturctLED_3);
+		HLED_VidLed_Off(&LOC_SturctLED_4);
+		HLED_VidLed_Off(&LOC_SturctLED_5);
+		break ;
+	case TWO_LED:
+		HLED_VidLed_On(&LOC_SturctLED_1);
+		HLED_VidLed_On(&LOC_SturctLED_2);
+		HLED_VidLed_Off(&LOC_SturctLED_3);
+		HLED_VidLed_Off(&LOC_SturctLED_4);
+		HLED_VidLed_Off(&LOC_SturctLED_5);
+		break ;
+	case THREE_LED:
+		HLED_VidLed_On(&LOC_SturctLED_1);
+		HLED_VidLed_On(&LOC_SturctLED_2);
+		HLED_VidLed_On(&LOC_SturctLED_3);
+		HLED_VidLed_Off(&LOC_SturctLED_4);
+		HLED_VidLed_Off(&LOC_SturctLED_5);
+		break ;
+	case FOUR_LED:
+		HLED_VidLed_On(&LOC_SturctLED_1);
+		HLED_VidLed_On(&LOC_SturctLED_2);
+		HLED_VidLed_On(&LOC_SturctLED_3);
+		HLED_VidLed_On(&LOC_SturctLED_4);
+		HLED_VidLed_Off(&LOC_SturctLED_5);
+		break ;
+	case FIVE_LED:
+		HLED_VidLed_On(&LOC_SturctLED_1);
+		HLED_VidLed_On(&LOC_SturctLED_2);
+		HLED_VidLed_On(&LOC_SturctLED_3);
+		HLED_VidLed_On(&LOC_SturctLED_4);
+		HLED_VidLed_On(&LOC_SturctLED_5);
+		break ;
+	}
 }
 /*******************************************************************************************************/
 /*                                        6- App_voidCheckTempretuare                                  */

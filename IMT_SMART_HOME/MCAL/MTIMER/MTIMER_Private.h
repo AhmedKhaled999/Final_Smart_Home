@@ -15,16 +15,51 @@
 #define OCR0      *((volatile u8*)0x5C)
 
 /****************TIMER1****************/
-#define TCCR1A     *((volatile u8*)0x4F)
-#define TCCR1B     *((volatile u8*)0x4E)
-#define ICR1       *((volatile u16*)0x46)
-#define OCR1A      *((volatile u16*)0x4A)
+/*TIMER 1*/
 
 
-#define TCNT1      *((volatile u16*)0x4C)
+#define ICR1         (*(volatile unsigned short*)0x46)
+#define ICR1L        (*(volatile unsigned char*)0x46 )
+#define ICR1H        (*(volatile unsigned char*)0x47 )
+#define OCR1B        (*(volatile unsigned short*)0x48)
+#define OCR1BL       (*(volatile unsigned char*)0x48 )
+#define OCR1BH       (*(volatile unsigned char*)0x49 )
+#define OCR1A        (*(volatile unsigned short*)0x4A)
+#define OCR1AL       (*(volatile unsigned char*)0x4A )
+#define OCR1AH       (*(volatile unsigned char*)0x4B )
+#define TCNT1        (*(volatile unsigned short*)0x4C)
+#define TCNT1L       (*(volatile unsigned char*)0x4C )
+#define TCNT1H       (*(volatile unsigned char*)0x4D )
+#define TCCR1B       (*(volatile unsigned char*)0x4E )
+#define TCCR1A       (*(volatile unsigned char*)0x4F )
+
+#define SFIOR        (*(volatile unsigned char*)0x50)
+
+#define OSCCAL       (*(volatile unsigned char*)0x51)
+
+//A#define TCNT1      *((volatile u16*)0x4C)
 //#define TIMSK      *((volatile u16*)0x59)
 
 
+/* TCCR1A */
+#define COM1A1  7
+#define COM1A0  6
+#define COM1B1  5
+#define COM1B0  4
+#define FOC1A   3
+#define FOC1B   2
+#define WGM11   1
+#define WGM10   0
+
+/* TCCR1B */
+#define ICNC1   7
+#define ICES1   6
+/* bit 5 reserved */
+#define WGM13   4
+#define WGM12   3
+#define CS12    2
+#define CS11    1
+#define CS10    0
 /*Timer0 Prescaler Options */
 
 #define TIMER_STOPPED                                    0
@@ -75,8 +110,8 @@
 
 
 /*Timer1 Mode options*/
-#define TIMER1_NORMAL_MODE                                1
-#define TIMER1_ICU_MODE                                   2
+//#define TIMER1_NORMAL_MODE                                1
+//#define TIMER1_ICU_MODE                                   2
 
 /*ICU Edge Selection Options:
  * 1- TIMER1_ICU_RISING_EDGE

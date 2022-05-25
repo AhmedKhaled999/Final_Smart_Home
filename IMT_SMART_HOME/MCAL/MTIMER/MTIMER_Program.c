@@ -160,6 +160,101 @@ void MTIMER1_VidInit(void)
 #endif
 }
 
+/***********************************************************************************************/
+/*                          Anther way to initialize Timer 1                                   */
+/***********************************************************************************************/
+void MTIMER1_voidInit( Timer1Mode_type mode,Timer1Scaler_type scaler,OC1A_Mode_type oc1a_mode,OC1B_Mode_type oc1b_mode)
+{
+	switch (mode)
+	{
+	case TIMER1_NORMAL_MODE:
+		CLR_BIT(TCCR1A,WGM10);
+		CLR_BIT(TCCR1A,WGM11);
+		CLR_BIT(TCCR1B,WGM12);
+		CLR_BIT(TCCR1B,WGM13);
+		break;
+	case TIMER1_CTC_ICR_TOP_MODE:
+		CLR_BIT(TCCR1A,WGM10);
+		CLR_BIT(TCCR1A,WGM11);
+		SET_BIT(TCCR1B,WGM12);
+		SET_BIT(TCCR1B,WGM13);
+		break;
+
+	case TIMER1_CTC_OCRA_TOP_MODE:
+		CLR_BIT(TCCR1A,WGM10);
+		CLR_BIT(TCCR1A,WGM11);
+		SET_BIT(TCCR1B,WGM12);
+		CLR_BIT(TCCR1B,WGM13);
+		break;
+
+	case TIMER1_FASTPWM_ICR_TOP_MODE:
+		CLR_BIT(TCCR1A,WGM10);
+		SET_BIT(TCCR1A,WGM11);
+		SET_BIT(TCCR1B,WGM12);
+		SET_BIT(TCCR1B,WGM13);
+		break;
+
+	case TIMER1_FASTPWM_OCRA_TOP_MODE:
+		SET_BIT(TCCR1A,WGM10);
+		SET_BIT(TCCR1A,WGM11);
+		SET_BIT(TCCR1B,WGM12);
+		SET_BIT(TCCR1B,WGM13);
+		break;
+	}
+	switch (oc1a_mode)
+	{
+	case OCRA_DISCONNECTED:
+		CLR_BIT(TCCR1A,COM1A0);
+		CLR_BIT(TCCR1A,COM1A1);
+		break;
+	case OCRA_TOGGLE:
+		SET_BIT(TCCR1A,COM1A0);
+		CLR_BIT(TCCR1A,COM1A1);
+		break;
+	case OCRA_NON_INVERTING:
+		CLR_BIT(TCCR1A,COM1A0);
+		SET_BIT(TCCR1A,COM1A1);
+		break;
+	case OCRA_INVERTING:
+		SET_BIT(TCCR1A,COM1A0);
+		SET_BIT(TCCR1A,COM1A1);
+		break;
+	}
+	switch (oc1b_mode)
+	{
+	case OCRB_DISCONNECTED:
+		CLR_BIT(TCCR1A,COM1B0);
+		CLR_BIT(TCCR1A,COM1B1);
+		break;
+	case OCRB_TOGGLE:
+		SET_BIT(TCCR1A,COM1B0);
+		CLR_BIT(TCCR1A,COM1B1);
+		break;
+	case OCRB_NON_INVERTING:
+		CLR_BIT(TCCR1A,COM1B0);
+		SET_BIT(TCCR1A,COM1B1);
+		break;
+	case OCRB_INVERTING:
+		SET_BIT(TCCR1A,COM1B0);
+		SET_BIT(TCCR1A,COM1B1);
+		break;
+	}
+
+
+	TCCR1B&=0XF8;
+	TCCR1B|=scaler;
+
+}
+/**************************************************************************************************/
+/*                                      For Servo Motor                                           */
+/**************************************************************************************************/
+
+void MTIMER1_voidSetOcr1b(u16 Copy_u16OCRValue)
+{
+	OCR1B=999+((u32)Copy_u16OCRValue*1000)/180;
+}
+
+
 /*Set Preload Function*/
 void MTIMER1_VidSetPreload(u16 Copy_u16Preload)
 {
