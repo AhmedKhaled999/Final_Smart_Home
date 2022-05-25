@@ -1,18 +1,15 @@
-/*
- * HKPD_Program.c
- *
- *  Created on: Jan 16, 2022
- *      Author: Ahmed Khaled Hammad
- */
-
+/* Author            : Ahmed khaled Hammad & Mohamed Ahmed Abdelhamid                                  */
+/* Version           : V0.0.0                                                                          */
+/* Data              : 24 May 2022                                                                     */
+/* Description       : HKPD Driver                                                                     */
 #include"..\..\LIB\LSTD_TYPES.h"
 #include"..\..\MCAL\MDIO\MDIO_Interface.h"
 
 #include"HKPD_Private.h"
 #include"HKPD_Config.h"
 #include"HKPD_Interface.h"
-
-#include"util/delay.h"
+#define F_CPU 8000000UL
+#include<util/delay.h>"
 
 const u8 KPD_u8SwitchVal[4][4]=
 {
@@ -75,7 +72,7 @@ u8 HKPD_U8GetKeyPressed(void)
 	/*Initialize the switch status to NOT PRESSED*/
 	u8 LOC_U8ReturnValue=NOT_PRESSED;
 	u8 LOC_U8PinState;
-	while(1){
+
 		/*Looping on columns of the keypad*/
 		for(LOC_U8ColCount=COL_INIT;LOC_U8ColCount<COL_END;LOC_U8ColCount++)
 		{
@@ -96,7 +93,7 @@ u8 HKPD_U8GetKeyPressed(void)
 						MDIO_Error_State_GetPinValue(LOC_U8RowCount,ROW_PORT,&LOC_U8PinState);
 					}
 					/*Delay To avoid Bouncing*/
-					_delay_ms(10);
+					_delay_ms(20);
 				}
 				else
 				{
@@ -108,7 +105,7 @@ u8 HKPD_U8GetKeyPressed(void)
 		}
 	if(LOC_U8ReturnValue!=255)
 		return LOC_U8ReturnValue;
-	}
+
 
 
 

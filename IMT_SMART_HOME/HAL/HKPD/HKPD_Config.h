@@ -1,10 +1,7 @@
-/*
- * HKPD_Config.h
- *
- *  Created on: Jan 16, 2022
- *      Author: Ahmed Khaled Hammad
- */
-
+/* Author            : Ahmed khaled Hammad & Mohamed Ahmed Abdelhamid                                  */
+/* Version           : V0.0.0                                                                          */
+/* Data              : 24 May 2022                                                                     */
+/* Description       : HKPD Driver                                                                     */
 #ifndef HAL_HKPD_HKPD_CONFIG_H_
 #define HAL_HKPD_HKPD_CONFIG_H_
 
@@ -16,10 +13,10 @@
 
 #define ROW_PORT     MDIO_PORTC
 /*Row Pins Options: From PIN0 To PIN7*/
-#define ROW_PIN0   PIN0
-#define ROW_PIN1   PIN1
-#define ROW_PIN2   PIN2
-#define ROW_PIN3   PIN3
+#define ROW_PIN0   PIN3
+#define ROW_PIN1   PIN2
+#define ROW_PIN2   PIN1
+#define ROW_PIN3   PIN0
 
 /*COL Port Options
  * 1- MDIO_PORTA

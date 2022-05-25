@@ -1,9 +1,7 @@
-/*
- * MADC_Interface.h
- *
- *  Created on: Jan 18, 2022
- *      Author: Ahmed Khaled Hammad
- */
+/* Author            : Ahmed khaled Hammad & Mohamed Ahmed Abdelhamid                                  */
+/* Version           : V0.0.0                                                                          */
+/* Data              : 24 May 2022                                                                     */
+/* Description       : MADC Driver                                                                     */
 
 #ifndef MCAL_MADC_MADC_INTERFACE_H_
 #define MCAL_MADC_MADC_INTERFACE_H_

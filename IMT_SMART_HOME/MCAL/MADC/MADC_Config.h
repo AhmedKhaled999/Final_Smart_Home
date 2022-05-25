@@ -1,9 +1,7 @@
-/*
- * MADC_Config.h
- *
- *  Created on: Jan 18, 2022
- *      Author: Ahmed Khaled Hammad
- */
+/* Author            : Ahmed khaled Hammad & Mohamed Ahmed Abdelhamid                                  */
+/* Version           : V0.0.0                                                                          */
+/* Data              : 24 May 2022                                                                     */
+/* Description       : MADC Driver                                                                     */
 
 #ifndef MCAL_MADC_MADC_CONFIG_H_
 #define MCAL_MADC_MADC_CONFIG_H_
@@ -24,7 +22,7 @@
  * 6- MADC_64_PRESCALER
  * 7- MADC_128_PRESCALER
  */
-#define MADC_SET_PRESCALER   MADC_8_PRESCALER
+#define MADC_SET_PRESCALER   MADC_64_PRESCALER
 
 /*MADC Adjust Options:
  *1- MADC_LEFT_ADJUST

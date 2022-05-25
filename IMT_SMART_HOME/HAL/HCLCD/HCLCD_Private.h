@@ -1,9 +1,7 @@
-/*
- * HLCD_Private.h
- *
- *  Created on: Jan 15, 2022
- *      Author: Ahmed Khaled Hammad
- */
+/* Author            : Ahmed khaled Hammad & Mohamed Ahmed Abdelhamid                                  */
+/* Version           : V0.0.0                                                                          */
+/* Data              : 24 May 2022                                                                     */
+/* Description       : HLCD Driver                                                                     */
 
 #ifndef HAL_HCLCD_HCLCD_PRIVATE_H_
 #define HAL_HCLCD_HCLCD_PRIVATE_H_

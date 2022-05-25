@@ -1,9 +1,7 @@
-/*
- * MADC_Program.c
- *
- *  Created on: Jan 18, 2022
- *      Author: Ahmed Khaled Hammad
- */
+/* Author            : Ahmed khaled Hammad & Mohamed Ahmed Abdelhamid                                  */
+/* Version           : V0.0.0                                                                          */
+/* Data              : 24 May 2022                                                                     */
+/* Description       : MADC Driver                                                                     */
 
 #include"../../LIB/LSTD_TYPES.h"
 #include"../../LIB/LBIT_MATH.h"

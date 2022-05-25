@@ -1,9 +1,8 @@
-/*
- * HKPD_Interface.h
- *
- *  Created on: Jan 16, 2022
- *      Author: Ahmed Khaled Hammad
- */
+/* Author            : Ahmed khaled Hammad & Mohamed Ahmed Abdelhamid                                  */
+/* Version           : V0.0.0                                                                          */
+/* Data              : 24 May 2022                                                                     */
+/* Description       : HKPD Driver                                                                     */
+
 
 #ifndef HAL_HKPD_HKPD_INTERFACE_H_
 #define HAL_HKPD_HKPD_INTERFACE_H_

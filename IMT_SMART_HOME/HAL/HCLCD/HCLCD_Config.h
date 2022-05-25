@@ -1,9 +1,7 @@
-/*
- * HLCD_Config.h
- *
- *  Created on: Jan 15, 2022
- *      Author: Ahmed Khaled Hammad
- */
+/* Author            : Ahmed khaled Hammad & Mohamed Ahmed Abdelhamid                                  */
+/* Version           : V0.0.0                                                                          */
+/* Data              : 24 May 2022                                                                     */
+/* Description       : HLCD Driver                                                                     */
 
 #ifndef HAL_HCLCD_HCLCD_CONFIG_H_
 #define HAL_HCLCD_HCLCD_CONFIG_H_
@@ -16,12 +14,12 @@
 
 /*Configure CONTROL_PORT --> (MDIO_PORTA,MDIO_PORTB,DIO_PORTC,MDIO_PORTD)*/
 
-#define CONTROL_PORT  MDIO_PORTC
+#define CONTROL_PORT  MDIO_PORTB
 
 
 /*Configure DATA_PORT --> (MDIO_PORTA,MDIO_PORTB,DIO_PORTC,MDIO_PORTD)*/
 
-#define DATA_PORT     MDIO_PORTC
+#define DATA_PORT     MDIO_PORTB
 
 #define HCLCD_PINSTART  PIN4
 #define HCLCD_PINEND    PIN7
@@ -40,7 +38,7 @@
  * 3- DISPLAY_ON_CURSOR_OFF
  * 4- DISPLAY_OFF
  * */
-#define HCLCD_DISPLAY_ON_OFF  DISPLAY_ON_CURSOR_ON_BLINKING_ON
+#define HCLCD_DISPLAY_ON_OFF  DISPLAY_ON_CURSOR_OFF
 
 /*Configure ENTRY_MODE_SET options:
  * 1- ENTRY_MODE_SET_INCEREASE_WITH_SHIFT
