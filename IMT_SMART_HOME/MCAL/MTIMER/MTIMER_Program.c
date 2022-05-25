@@ -243,6 +243,7 @@ void MTIMER1_voidInit( Timer1Mode_type mode,Timer1Scaler_type scaler,OC1A_Mode_t
 
 	TCCR1B&=0XF8;
 	TCCR1B|=scaler;
+	ICR1 = 19999;     /* top ICR for frequency 50 Hz for Servo */
 
 }
 /**************************************************************************************************/
@@ -251,7 +252,7 @@ void MTIMER1_voidInit( Timer1Mode_type mode,Timer1Scaler_type scaler,OC1A_Mode_t
 
 void MTIMER1_voidSetOcr1b(u16 Copy_u16OCRValue)
 {
-	OCR1B=999+((u32)Copy_u16OCRValue*1000)/180;
+	OCR1A=999+((u32)Copy_u16OCRValue*1000)/180;
 }
 
 

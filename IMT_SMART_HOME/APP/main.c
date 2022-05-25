@@ -35,7 +35,6 @@
 /*******************************************************************************************************/
 
 #include"../MCAL/MDIO/MDIO_Interface.h"                      //For DIO
-#include"../MCAL/MGIE/MGIE_Interface.h"                      //For Global Interrupt
 #include"../MCAL/MTIMER/MTIMER_Interface.h"                  //For timer
 #include"../MCAL/MADC/MADC_Interface.h"                      //For ADC
 
@@ -51,6 +50,7 @@
 #include"../HAL/HBUZZER/HBUZZER_Interface.h"                //For Buzzer
 #include"../HAL/HDC_MOTOR/HDC_MOTOR_Interface.h"            //For DC Motor
 #include"../HAL/HSERVO_MOTOR/HSERVO_Interface.h"            //For Servo Motor
+#include"../HAL/HKPD/HKPD_Interface.h"                      //For KPD
 
 /*#####################################################################################################*/
 /*#####################################################################################################*/
@@ -83,13 +83,19 @@
 #define FIVE_LED                 5
 
 
-#define MAX_COUNT                500
+#define MAX_COUNT                20
 
 #define ZERO                     0
 
 #define DOOR_OPEN                180
 
 #define DOOR_CLOSED              0
+
+#define PASSWORD_CORRECT         8520
+
+#define COUNTER2_MAX             1000
+
+
 /*#####################################################################################################*/
 /*#####################################################################################################*/
 
@@ -107,9 +113,9 @@
 
 
 LED_t           LOC_SturctLED_1     ={HLED_PORTA,PIN0}                     ;
-LED_t           LOC_SturctLED_2     ={HLED_PORTA,PIN1}                     ;
+LED_t           LOC_SturctLED_2     ={HLED_PORTA,PIN2}                     ;
 LED_t           LOC_SturctLED_3     ={HLED_PORTA,PIN3}                     ;
-LED_t           LOC_SturctLED_4     ={HLED_PORTA,PIN4}                     ;
+LED_t           LOC_SturctLED_4     ={HLED_PORTA,PIN5}                     ;
 LED_t           LOC_SturctLED_5     ={HLED_PORTA,PIN6}                     ;
 
 /*******************************************************************************************************/
@@ -128,6 +134,18 @@ static u8 Global_u8BuzzerFlag = DEACTIVE    ;
 
 static u8 Global_u8ServoFlag  = DEACTIVE    ;
 
+/*******************************************************************************************************/
+
+static u8 Global_u8Temerature      = ZERO    ;
+
+/*******************************************************************************************************/
+
+static u8 Global_u8Temerature_dec  = ZERO     ;
+
+/*******************************************************************************************************/
+
+static u8 Global_u8LightPercent    = ZERO     ;
+
 /*#####################################################################################################*/
 /*#####################################################################################################*/
 
@@ -143,6 +161,8 @@ void App_voidReadTemp(void)                                              ;
 void App_voidReadLight(void)                                             ;
 void APP_voidLightControl(void)                                          ;
 void APP_voidFanControl(void)                                            ;
+void APP_voidDisplayTemperature(void)                                    ;
+void APP_voidDisplayLightIntensity(void)                                 ;
 
 /*#####################################################################################################*/
 /*#####################################################################################################*/
@@ -192,12 +212,21 @@ int main(void)
 	u16 LOC_u16DoorTimeOut = ZERO                                              ;
 
 	/*******************************************************************************************************/
-	/*                                         5- ///////////////////////////                              */
+	/*                                         5-  Local_u8Key                                             */
+	/*******************************************************************************************************/
+
+	u8 Local_u8Key   =  NOT_PRESSED                                            ;
+
+	/*******************************************************************************************************/
+	/*                                         6-  LOC_u16Counter2                                             */
 	/*******************************************************************************************************/
 
 
+	u16 LOC_u16Counter2  = ZERO ;
+
 	/*#####################################################################################################*/
 	/*#####################################################################################################*/
+
 
 	/*******************************************************************************************************/
 	/*                                       02- System Initialization                                     */
@@ -245,12 +274,7 @@ int main(void)
 	/*                             Set CTC Value 0 -->DutyCycle= 0%                                       */
 	APP_voidFanControl()                                               ;
 
-	/*******************************************************************************************************/
-	/*                                       5-  Timer1  Initialization                                    */
-	/*-----------------------------------------------------------------------------------------------------*/
-	/*******************************************************************************************************/
 
-	MTIMER1_VidInit()                                                  ;
 
 	/*******************************************************************************************************/
 	/*                                       6- Initialize Servo Motor                                     */
@@ -260,6 +284,7 @@ int main(void)
 	/*******************************************************************************************************/
 
 	HSERVO_voidInit() ;
+
 
 	/*******************************************************************************************************/
 	/*                                       7-  ADC Initialization                                        */
@@ -273,24 +298,14 @@ int main(void)
 
 	HCLCD_Vid4Bits_Init()                                              ;
 
-	/*                                       Test LCD by Welcome Message                                    */
-
-	HCLCD_Vid4Bits_SetPosition(1,0)                                    ;
-	HCLCD_Vid4Bits_DisplayString((u8*)"Welcome....")                   ;
-	_delay_ms(1000)                                                    ;
-	HCLCD_Vid4Bits_ClearScreen()                                       ;
-	_delay_ms(1000)                                                    ;
 
 	/*******************************************************************************************************/
 	/*                                       9-  KeyPad Initialization                                     */
 	/*******************************************************************************************************/
 
+	HKPD_VidInit()                                                   ;
 
-	/*******************************************************************************************************/
-	/*                                       Finally-  Enable To GIE                                       */
-	/*******************************************************************************************************/
 
-	MGIE_VidEnable();
 
 	/*#####################################################################################################*/
 	/*#####################################################################################################*/
@@ -315,11 +330,26 @@ int main(void)
 		/*#####################################################################################################*/
 		/*#####################################################################################################*/
 
-		App_voidReadTemp ();
+		APP_voidDisplayTemperature   ();
 
-		App_voidReadLight();
+		APP_voidDisplayLightIntensity();
 
-		App_voidSystemLogin() ;
+
+
+		for(LOC_u16Counter2= ZERO ; LOC_u16Counter2<COUNTER2_MAX ;LOC_u16Counter2++)
+		{
+			Local_u8Key = HKPD_U8GetKeyPressed();
+			if(Local_u8Key != NOT_PRESSED)
+			{
+				/* Key is Pressed */
+				/* Calls a Functions that Enters a Login System */
+				App_voidSystemLogin() ;
+			}
+			else
+			{
+				/*Do Nothing*/
+			}
+		}
 
 		if(Global_u8ServoFlag == ACTIVE)
 		{
@@ -356,7 +386,9 @@ int main(void)
 		/*MOTOR Control*/
 		APP_voidFanControl();
 		/*Light Control */
-		APP_voidLightControl();
+    	APP_voidLightControl();
+
+
 	}
 	return 0 ;
 
@@ -384,6 +416,21 @@ void App_voidReadTemp(void)
 {
 
 	/*Set Algorithm*/
+	/*******************************************************************************************************/
+	/*                                     Local Variables Initialization                                  */
+	/*******************************************************************************************************/
+
+	u16 Local_u16Digital_Value = ZERO  ;
+	u16 Local_u16Analog_value  = ZERO  ;
+
+	/*******************************************************************************************************/
+	/*                                         Calculate Temperature                                       */
+	/*******************************************************************************************************/
+
+	Local_u16Digital_Value = MADC_u16ADC_StartConversion(CHANNEL_4);         /*     Get ADC Reading          */
+	Local_u16Analog_value = (u16)((Local_u16Digital_Value*5000UL)/1024);     /*     Read Analog Voltage      */
+	Global_u8Temerature_dec = (Local_u16Analog_value % 10);
+	Global_u8Temerature = (Local_u16Analog_value/10);                        /*     Calculate Temperature    */
 }
 
 
@@ -397,6 +444,20 @@ void App_voidReadLight(void)
 {
 
 	/*Set Algorithm*/
+	/*******************************************************************************************************/
+	/*                                     Local Variables Initialization                                  */
+	/*******************************************************************************************************/
+
+	u16 Local_u16Digital_Value1;
+
+	/*******************************************************************************************************/
+	/*                                         Calculate Light Intensity                                   */
+	/*******************************************************************************************************/
+
+	Local_u16Digital_Value1 = MADC_u16ADC_StartConversion(CHANNEL_1);           /* Getting ADC Reading from the LDR       */
+	/* Calculating the Light Intensity Percent  */
+	Global_u8LightPercent = (u16)((Local_u16Digital_Value1*100UL)/1024);        /* Converting The Reading into Percentage */
+
 }
 
 /*******************************************************************************************************/
@@ -407,30 +468,158 @@ void App_voidReadLight(void)
 
 void App_voidSystemLogin(void)
 {
+	/*******************************************************************************************************/
+	/*                                         Login System Function                                       */
+	/*******************************************************************************************************/
 
-	//   check(if_pressed)
+	/*******************************************************************************************************/
+	/*                                     Local Variables Initialization                                  */
+	/*******************************************************************************************************/
+	u8  Local_u8Key        = NOT_PRESSED      ;
+	u8  Local_u8Counter    = ZERO             ;
+	u8  Local_u8Counter2   = ZERO             ;
+	u16 Local_u16value     = ZERO             ;
+	u16 Local_Num1         = ZERO             ;
+	u16 Local_u16Password  = PASSWORD_CORRECT ;
 
-	//   passoword asking
 
-	//   wait 4 digit  display on LCD
+	HCLCD_Vid4Bits_ClearScreen();
+	HCLCD_Vid4Bits_DisplayString("Enter Passcode :");       /* Asking User to Enter Password */
+	HCLCD_Vid4Bits_SetPosition(HCLCD_LINE2,4);
+	while(1)
+	{
+		Local_u8Key = HKPD_U8GetKeyPressed();             /* Checks if The Key is Pressed  */
 
-	//   validate
+		if(Local_u8Key != NOT_PRESSED)                 /* if Key is Pressed */
+		{
+			if(Local_u8Counter<4)                      /* wait 4 digit  display on LCD */
+			{
+				Local_u8Counter++;
 
-	//   if correct    welcome Message (OPEN Door)
+				switch(Local_u8Key)
+				{
+				case '0':
+					Local_u16value =0;
+					Local_Num1 = (Local_Num1*10) + Local_u16value ;
+					HCLCD_Vid4Bits_DisplayCharacter('0');
+					break;
+				case '1':
+					Local_u16value =1;
+					Local_Num1 = (Local_Num1*10) + Local_u16value ;
+					HCLCD_Vid4Bits_DisplayCharacter('1');
+					break;
+				case '2':
+					Local_u16value =2;
+					Local_Num1 = (Local_Num1*10) + Local_u16value ;
+					HCLCD_Vid4Bits_DisplayCharacter('2');
+					break;
+				case '3':
+					Local_u16value =3;
+					Local_Num1 = (Local_Num1*10) + Local_u16value ;
+					HCLCD_Vid4Bits_DisplayCharacter('3');
+					break;
+				case '4':
+					Local_u16value =4;
+					Local_Num1 = (Local_Num1*10) + Local_u16value ;
+					HCLCD_Vid4Bits_DisplayCharacter('4');
+					break;
+				case '5':
+					Local_u16value =5;
+					Local_Num1 = (Local_Num1*10) + Local_u16value ;
+					HCLCD_Vid4Bits_DisplayCharacter('5');
+					break;
+				case '6':
+					Local_u16value =6;
+					Local_Num1 = (Local_Num1*10) + Local_u16value ;
+					HCLCD_Vid4Bits_DisplayCharacter('6');
+					break;
+				case '7':
+					Local_u16value =7;
+					Local_Num1 = (Local_Num1*10) + Local_u16value ;
+					HCLCD_Vid4Bits_DisplayCharacter('7');
+					break;
+				case '8':
+					Local_u16value =8;
+					Local_Num1 = (Local_Num1*10) + Local_u16value ;
+					HCLCD_Vid4Bits_DisplayCharacter('8');
+					break;
+				case '9':
+					Local_u16value =9;
+					Local_Num1 = (Local_Num1*10) + Local_u16value ;
+					HCLCD_Vid4Bits_DisplayCharacter('9');
+					break;
+				default:                                             /* if any Button is pressed other than Numbers */
+					HCLCD_Vid4Bits_ClearScreen();
 
-	//   Set Global_u8ServoFlag  = 1
+					HCLCD_Vid4Bits_SetPosition(HCLCD_LINE1,1);
+					HCLCD_Vid4Bits_DisplayString("Please Enter");
 
-	//if  wrong
+					HCLCD_Vid4Bits_SetPosition(HCLCD_LINE2,1);
+					HCLCD_Vid4Bits_DisplayString("Numbers Only");
+					_delay_ms(1500);
 
-	//tray  2 times
+					HCLCD_Vid4Bits_ClearScreen();
+					HCLCD_Vid4Bits_DisplayString("   Try Again ");     /* Asks The User to Enter Password Again */
+					HCLCD_Vid4Bits_SetPosition(HCLCD_LINE2,4);
+					_delay_ms(500);
+					Local_u8Counter =0 ;
 
-	// if still wrong display messege 7ramy
+				}
 
-	//  Set Buzzer flag
+			}
+			if(Local_u8Counter>3)                         /* if 4 Numbers Are Entered */
+			{
+				if(Local_Num1 == Local_u16Password)        /* Checks if Password Match */
+				{
+					_delay_ms(1000);
 
-	//Set Global_u8BuzzerFlag  = 1
+					HCLCD_Vid4Bits_ClearScreen();
 
+					HCLCD_Vid4Bits_DisplayString("    Welcome ");       /* Welcome Message is Displayed */
+					HCLCD_Vid4Bits_SetPosition(HCLCD_LINE2,1);
+					HCLCD_Vid4Bits_DisplayString("Opening  Door");
+					Global_u8ServoFlag  = ACTIVE;                       /*  Set Global_u8ServoFlag  = 1  */
+					_delay_ms(1000);
+					break;
+				}
+				else
+				{
+
+					if(Local_u8Counter2 < 2)           /* if a wrong password is entered less than three times */
+					{
+						_delay_ms(1000);
+						HCLCD_Vid4Bits_ClearScreen();
+						HCLCD_Vid4Bits_DisplayString("  Try Again ");
+						Local_u8Counter = 0 ;
+						Local_Num1=0;
+						Local_u8Counter2++;
+						HCLCD_Vid4Bits_SetPosition(HCLCD_LINE2,4);
+
+
+					}
+					else                                   /* if Password is entered 3 times Wrong */
+					{
+						_delay_ms(1000);
+						HCLCD_Vid4Bits_ClearScreen();
+						HCLCD_Vid4Bits_DisplayString(" Out of tries !");
+						Global_u8BuzzerFlag  = ACTIVE;     /* Set Global_u8BuzzerFlag  = 1 */
+						_delay_ms(3000);
+
+						break;
+
+
+					}
+
+				}
+
+			}
+
+		}
+	}
 }
+
+
+
 
 /*******************************************************************************************************/
 /*                                        4- APP_voidFanControl                                        */
@@ -489,6 +678,9 @@ void APP_voidLightControl(void)
 		HLED_VidLed_On(&LOC_SturctLED_4);
 		HLED_VidLed_On(&LOC_SturctLED_5);
 		break ;
+	default:
+		/* Do Nothing */
+		break;
 	}
 }
 /*******************************************************************************************************/
@@ -552,6 +744,55 @@ void App_voidCheckLightIntensity(u8 Copy_u8LightIntenisity)
 		Global_u8LedsNumber = 5 ;             //  Speed is 0 %
 	}
 }
+
+
+/*******************************************************************************************************/
+/*                                        8- APP_voidDisplayTemperature                                         */
+/*-----------------------------------------------------------------------------------------------------*/
+/*Notes:                                                                                               */
+/*******************************************************************************************************/
+
+void APP_voidDisplayTemperature(void)
+{
+/*******************************************************************************************************/
+/*                                          Display Temperature                                            */
+/*******************************************************************************************************/
+
+	App_voidReadTemp();                                 /* Function That Calculates Temperature */
+	HCLCD_Vid4Bits_ClearScreen();
+	HCLCD_Vid4Bits_SetPosition(HCLCD_LINE1,1);          /*  Position of Temperature on LCD first row */
+	HCLCD_Vid4Bits_DisplayString("Temp = ");
+	HCLCD_Vid4Bits_DisplayNumber(Global_u8Temerature);
+	HCLCD_Vid4Bits_DisplayString(".");
+	HCLCD_Vid4Bits_DisplayNumber(Global_u8Temerature_dec);
+	HCLCD_Vid4Bits_DisplayString(" C");
+
+	App_voidCheckTempretuare(Global_u8Temerature);
+}
+
+
+/*******************************************************************************************************/
+/*                                        9- APP_voidDisplayLightIntensity                                        */
+/*-----------------------------------------------------------------------------------------------------*/
+/*Notes:                                                                                               */
+/*******************************************************************************************************/
+
+void APP_voidDisplayLightIntensity(void)
+{
+/*******************************************************************************************************/
+/*                                         Display Light Intensity                                     */
+/*******************************************************************************************************/
+	App_voidReadLight();                               /* Function That Calculates Light Intensity */
+	HCLCD_Vid4Bits_SetPosition(HCLCD_LINE2,1);
+	HCLCD_Vid4Bits_DisplayString("LT INT = ");         /* Displays the Light Intensity Reading of the LDR */
+	HCLCD_Vid4Bits_DisplayNumber(Global_u8LightPercent);
+	HCLCD_Vid4Bits_DisplayString(" %");
+
+
+	App_voidCheckLightIntensity(Global_u8LightPercent);
+}
+
 /*#####################################################################################################*/
 /*                                    END OF APPLICATION FUNCTIONS                                     */
 /*#####################################################################################################*/
+
